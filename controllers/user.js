@@ -7,7 +7,7 @@ const { checkPermissions } = require('../utils')
 // @desc      Get all users
 // @route     GET /api/v1/user
 const getAllUsers = async (req, res) => {
-  const users = await User.find({}).populate('articles')
+  const users = await User.find({}).select('-password').populate('articles')
   res.status(StatusCodes.OK).json({
     status: 'success',
     users,
