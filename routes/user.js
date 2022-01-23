@@ -7,6 +7,7 @@ const {
   deleteUser,
   createUser,
   getUser,
+  updateUserRole,
 } = require('../controllers/user')
 
 const {
@@ -17,6 +18,6 @@ const {
 //router.use(authenticateUser)
 
 router.route('/').get(getAllUsers).post(createUser).delete(deleteAllUsers)
-router.route('/:slug').get(getUser).delete(deleteUser)
+router.route('/:slug').get(getUser).delete(deleteUser).patch(updateUserRole)
 
 module.exports = router

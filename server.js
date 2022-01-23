@@ -5,10 +5,22 @@ const compression = require('compression')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const morgan = require('morgan')
+const helmet = require('helmet')
+const xss = require('xss-clean')
+const rateLimit = require('express-rate-limit')
+const hpp = require('hpp')
 const cors = require('cors')
 
 // Connect with database
 connectDB()
+
+const fs = require('fs')
+const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
+
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
+const { uploadFile, getFileStream } = require('./s3')
 
 const app = express()
 app.enable('trust proxy')
@@ -39,6 +51,22 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
 
+// Set security headers
+app.use(helmet())
+
+// Prevent XSS attacks
+app.use(xss())
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 mins
+  max: 100,
+})
+app.use(limiter)
+
+// Prevent http param pollution
+app.use(hpp())
+
 // Enable CORS
 app.use(cors())
 
@@ -50,6 +78,24 @@ app.use('/api/v1/article', article)
 app.use('/api/v1/category', category)
 app.use('/api/v1/auth', auth)
 app.use('/api/v1/user', user)
+
+app.get('/images/:key', (req, res) => {
+  const key = req.params.key
+  const readStream = getFileStream(key)
+  readStream.pipe(res)
+})
+
+app.post('/images', upload.single('image'), async (req, res) => {
+  const file = req.file
+
+  // apply filter
+  // resize
+
+  const result = await uploadFile(file)
+  await unlinkFile(file.path)
+  const description = req.body.description
+  res.send({ description, imagePath: `/images/${result.Key}` })
+})
 
 // Not found route
 app.use(notFound)

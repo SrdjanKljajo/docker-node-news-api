@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'publisher', 'moderator', 'admin'],
       default: 'user',
     },
+    picture: {
+      type: String,
+      default:
+        'https://res.cloudinary.com/dt3ckniuc/image/upload/v1594806338/person-placeholder_yydmf0.png',
+    },
     resetPasswordLink: {
       data: String,
       default: '',

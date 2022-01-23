@@ -24,7 +24,7 @@ const getUser = async (req, res) => {
 
   if (!user) throw new CustomError.NotFoundError(`User ${slug} not found`)
 
-  checkPermissions(req.user, user._id)
+  //checkPermissions(req.user, user._id)
 
   res.status(StatusCodes.OK).json({
     status: 'success',
@@ -36,16 +36,37 @@ const getUser = async (req, res) => {
 // @route     POST /api/v1/user
 // @access    Private (only admin and moderator role)
 const createUser = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body
+  const { username, email, password, picture, confirmPassword } = req.body
 
   if (password !== confirmPassword)
     throw new CustomApiError.BadRequestError('Passwords dont match')
 
-  const user = await User.create({ username, password, email })
+  const user = await User.create({ username, password, email, picture })
   res.status(StatusCodes.CREATED).json({
     status: 'success',
     msg: `User ${username} add`,
     user,
+  })
+}
+
+// @desc      Update single user atrribute
+// @route     PATCH /api/v1/users/:slug
+// @access    Private (only admin role)
+const updateUserRole = async (req, res) => {
+  const user = await User.findOneAndUpdate(
+    { slug: req.params.slug },
+    { role: req.body.role },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+
+  if (!user) throw new CustomError.NotFoundError(`User ${slug} not found`)
+
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    msg: `User ${user.username} role updated to ${user.role}`,
   })
 }
 
@@ -73,6 +94,7 @@ module.exports = {
   getAllUsers,
   getUser,
   createUser,
+  updateUserRole,
   deleteAllUsers,
   deleteUser,
 }
