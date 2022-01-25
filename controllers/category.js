@@ -5,11 +5,45 @@ const CustomError = require('../errors')
 // @desc      Get categories
 // @route     GET /api/v1/category
 const getAllCategories = async (req, res) => {
-  const categories = await Category.find().populate('articles')
+  const categories = await Category.find()
+    .populate('articles')
+    .populate('subCategories', ['name'])
   res.status(StatusCodes.OK).json({
     status: 'success',
     categories,
     count: categories.length,
+  })
+}
+
+// @desc      Get single category
+// @route     GET /api/v1/category/:slug
+const getSingleCategory = async (req, res) => {
+  const slug = req.params.slug
+  const category = await Category.findOne({ slug })
+  if (!category) {
+    throw new CustomError.NotFoundError(`Category ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    category,
+  })
+}
+
+// @desc      Get sub categories by category
+// @route     GET /api/v1/category/:slug/sub-categories
+const getSubCategoriesByCategory = async (req, res) => {
+  const slug = req.params.slug
+  const category = await Category.findOne({ slug }).populate('subCategories', [
+    'name',
+  ])
+  if (!category) {
+    throw new CustomError.NotFoundError(`Category ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    category: category.name,
+    subCategories: category.subCategories,
+    count: category.subCategories.length,
   })
 }
 
@@ -19,23 +53,20 @@ const createCategory = async (req, res) => {
   const category = await Category.create({ ...req.body })
   res.status(StatusCodes.CREATED).json({
     status: 'success',
-    category: { name: category.name, slug: category.slug },
+    category,
   })
 }
 
 // @desc      Post category
 // @route     PUT /api/v1/category/:slug
 const updateCategory = async (req, res) => {
-  const category = await Category.findOneAndUpdate(
-    { slug: req.params.slug },
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
+  const slug = req.params.slug
+  const category = await Category.findOneAndUpdate({ slug }, req.body, {
+    new: true,
+    runValidators: true,
+  })
   if (!category) {
-    throw new CustomError.NotFoundError(`Category ${req.params.slug} not found`)
+    throw new CustomError.NotFoundError(`Category ${slug} not found`)
   }
   res.status(StatusCodes.OK).json({
     status: 'success',
@@ -65,6 +96,8 @@ const deleteAllCategories = async (req, res) => {
 
 module.exports = {
   getAllCategories,
+  getSubCategoriesByCategory,
+  getSingleCategory,
   createCategory,
   updateCategory,
   deleteCategory,

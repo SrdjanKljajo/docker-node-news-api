@@ -27,6 +27,8 @@ app.enable('trust proxy')
 //Import route files
 const article = require('./routes/article')
 const category = require('./routes/category')
+const subCategory = require('./routes/subCategory')
+const tag = require('./routes/tag')
 const auth = require('./routes/auth')
 const user = require('./routes/user')
 
@@ -76,6 +78,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 // import routes
 app.use('/api/v1/article', article)
 app.use('/api/v1/category', category)
+app.use('/api/v1/sub-category', subCategory)
+app.use('/api/v1/tag', tag)
 app.use('/api/v1/auth', auth)
 app.use('/api/v1/user', user)
 

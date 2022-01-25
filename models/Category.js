@@ -15,6 +15,9 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+    subCategories: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' },
+    ],
     articles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
   },
   { timestamps: true }

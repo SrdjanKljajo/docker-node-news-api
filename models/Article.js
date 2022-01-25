@@ -1,5 +1,16 @@
 const mongoose = require('mongoose')
+const { ObjectId } = mongoose.Schema.Types
 const slugify = require('slugify')
+
+const commentSchema = mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    comment: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+)
 
 const articleSchema = new mongoose.Schema(
   {
@@ -17,14 +28,17 @@ const articleSchema = new mongoose.Schema(
       required: [true, 'Body must be provided'],
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'Category',
       required: [true, 'Please provide category'],
     },
-    //subCategories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SubCategories' }],
-    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
+    subCategory: { type: ObjectId, ref: 'SubCategory' },
+    tags: [{ type: ObjectId, ref: 'Tag' }],
+    comments: [commentSchema],
+    likes: [],
+    unlikes: [],
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'User',
       required: [true, 'Please provide a user'],
     },

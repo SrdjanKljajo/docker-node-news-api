@@ -7,6 +7,8 @@ const {
   updateCategory,
   deleteCategory,
   deleteAllCategories,
+  getSubCategoriesByCategory,
+  getSingleCategory,
 } = require('../controllers/category')
 
 router
@@ -14,6 +16,11 @@ router
   .get(getAllCategories)
   .post(createCategory)
   .delete(deleteAllCategories)
-router.route('/:slug').put(updateCategory).delete(deleteCategory)
+router
+  .route('/:slug')
+  .get(getSingleCategory)
+  .put(updateCategory)
+  .delete(deleteCategory)
+router.route('/:slug/sub-categories').get(getSubCategoriesByCategory)
 
 module.exports = router
