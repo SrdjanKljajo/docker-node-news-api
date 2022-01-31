@@ -4,6 +4,7 @@ const CustomError = require('../errors')
 
 // @desc      Get categories
 // @route     GET /api/v1/category
+// @access    Private
 const getAllCategories = async (req, res) => {
   const categories = await Category.find()
     .populate('articles')
@@ -44,6 +45,26 @@ const getSubCategoriesByCategory = async (req, res) => {
     category: category.name,
     subCategories: category.subCategories,
     count: category.subCategories.length,
+  })
+}
+
+// @desc      Get articles by category
+// @route     GET /api/v1/category/:slug/articles
+const getArticlesByCategory = async (req, res) => {
+  const slug = req.params.slug
+  const category = await Category.findOne({ slug }).populate('articles', [
+    'title',
+    'body',
+    'user',
+  ])
+  if (!category) {
+    throw new CustomError.NotFoundError(`Category ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    category: category.name,
+    articles: category.articles,
+    count: category.articles.length,
   })
 }
 
@@ -98,6 +119,7 @@ module.exports = {
   getAllCategories,
   getSubCategoriesByCategory,
   getSingleCategory,
+  getArticlesByCategory,
   createCategory,
   updateCategory,
   deleteCategory,

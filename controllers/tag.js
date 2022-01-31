@@ -39,6 +39,26 @@ const updateTag = async (req, res) => {
   })
 }
 
+// @desc      Get articles by tag
+// @route     GET /api/v1/tag/:slug/articles
+const getArticlesByTag = async (req, res) => {
+  const slug = req.params.slug
+  const tag = await Tag.findOne({ slug }).populate('articles', [
+    'title',
+    'body',
+    'user',
+  ])
+  if (!tag) {
+    throw new CustomError.NotFoundError(`Tag ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    tag: tag.name,
+    articles: tag.articles,
+    count: tag.articles.length,
+  })
+}
+
 // @desc      Post tag
 // @route     DELETE /api/v1/tag/:slug
 const deleteTag = async (req, res) => {
@@ -61,6 +81,7 @@ const deleteAllTags = async (req, res) => {
 
 module.exports = {
   getAllTags,
+  getArticlesByTag,
   createTag,
   updateTag,
   deleteTag,

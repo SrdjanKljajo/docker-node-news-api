@@ -8,6 +8,10 @@ const {
   createUser,
   getUser,
   updateUserRole,
+  getUserPicture,
+  getArticlesByUser,
+  updateUser,
+  updateUserImage,
 } = require('../controllers/user')
 
 const {
@@ -15,9 +19,31 @@ const {
   authorizePermissions,
 } = require('../middlewares/auth')
 
-//router.use(authenticateUser)
+const uploadImg = require('../middlewares/imageUpload')
 
-router.route('/').get(getAllUsers).post(createUser).delete(deleteAllUsers)
-router.route('/:slug').get(getUser).delete(deleteUser).patch(updateUserRole)
+router
+  .route('/')
+  .get(
+    //authenticateUser,
+    //authorizePermissions('admin', 'moderator'),
+    getAllUsers
+  )
+  .post(
+    authenticateUser,
+    authorizePermissions('admin', 'moderator'),
+    uploadImg,
+    createUser
+  )
+  .delete(authenticateUser, authorizePermissions('admin'), deleteAllUsers)
+router
+  .route('/:slug')
+  .get(authenticateUser, getUser)
+  .put(authenticateUser, updateUser)
+  .delete(authenticateUser, deleteUser)
+  .patch(authenticateUser, authorizePermissions('admin'), updateUserRole)
+
+router.route('/:slug/picture').get(getUserPicture)
+router.route('/:slug/picture').patch(uploadImg, updateUserImage)
+router.route('/:slug/articles').get(getArticlesByUser)
 
 module.exports = router

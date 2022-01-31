@@ -14,16 +14,9 @@ const cors = require('cors')
 // Connect with database
 connectDB()
 
-const fs = require('fs')
-const util = require('util')
-const unlinkFile = util.promisify(fs.unlink)
-
-const multer = require('multer')
-const upload = multer({ dest: 'uploads/' })
-const { uploadFile, getFileStream } = require('./s3')
-
 const app = express()
 app.enable('trust proxy')
+
 //Import route files
 const article = require('./routes/article')
 const category = require('./routes/category')
@@ -82,24 +75,6 @@ app.use('/api/v1/sub-category', subCategory)
 app.use('/api/v1/tag', tag)
 app.use('/api/v1/auth', auth)
 app.use('/api/v1/user', user)
-
-app.get('/images/:key', (req, res) => {
-  const key = req.params.key
-  const readStream = getFileStream(key)
-  readStream.pipe(res)
-})
-
-app.post('/images', upload.single('image'), async (req, res) => {
-  const file = req.file
-
-  // apply filter
-  // resize
-
-  const result = await uploadFile(file)
-  await unlinkFile(file.path)
-  const description = req.body.description
-  res.send({ description, imagePath: `/images/${result.Key}` })
-})
 
 // Not found route
 app.use(notFound)

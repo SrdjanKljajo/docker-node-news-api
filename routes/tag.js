@@ -7,9 +7,26 @@ const {
   updateTag,
   deleteTag,
   deleteAllTags,
+  getArticlesByTag,
 } = require('../controllers/tag')
 
-router.route('/').get(getAllTags).post(createTag).delete(deleteAllTags)
-router.route('/:slug').put(updateTag).delete(deleteTag)
+const {
+  authenticateUser,
+  authorizePermissions,
+} = require('../middlewares/auth')
+
+router
+  .route('/')
+  .get(
+    //authenticateUser, authorizePermissions('admin', 'moderator'),
+    getAllTags
+  )
+  .post(authenticateUser, authorizePermissions('admin'), createTag)
+  .delete(authenticateUser, authorizePermissions('admin'), deleteAllTags)
+router
+  .route('/:slug')
+  .put(authenticateUser, authorizePermissions('admin', 'moderator'), updateTag)
+  .delete(authenticateUser, authorizePermissions('admin'), deleteTag)
+router.route('/:slug/articles').get(getArticlesByTag)
 
 module.exports = router

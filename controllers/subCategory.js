@@ -32,7 +32,7 @@ const getSingleSubCategory = async (req, res) => {
 // @route     POST /api/v1/sub-category
 const createSubCategory = async (req, res) => {
   const subCategory = await SubCategory.create({ ...req.body })
-  await Category.findByIdAndUpdate(
+  const category = await Category.findByIdAndUpdate(
     req.body.parentCategory,
     {
       $push: { subCategories: subCategory._id },
@@ -41,7 +41,10 @@ const createSubCategory = async (req, res) => {
   )
   res.status(StatusCodes.CREATED).json({
     status: 'success',
-    subCategory,
+    subCategory: {
+      name: subCategory.name,
+      parentCategory: category.name,
+    },
   })
 }
 
@@ -62,6 +65,26 @@ const updateSubCategory = async (req, res) => {
   res.status(StatusCodes.OK).json({
     status: 'success',
     subCategory,
+  })
+}
+
+// @desc      Get articles by subCategory
+// @route     GET /api/v1/subCategory/:slug/articles
+const getArticlesBySubCategory = async (req, res) => {
+  const slug = req.params.slug
+  const subCategory = await SubCategory.findOne({ slug }).populate('articles', [
+    'title',
+    'body',
+    'user',
+  ])
+  if (!subCategory) {
+    throw new CustomError.NotFoundError(`SubCategory ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    subCategory: subCategory.name,
+    articles: subCategory.articles,
+    count: subCategory.articles.length,
   })
 }
 
@@ -88,6 +111,7 @@ const deleteAllSubCategories = async (req, res) => {
 module.exports = {
   getAllSubCategories,
   getSingleSubCategory,
+  getArticlesBySubCategory,
   createSubCategory,
   updateSubCategory,
   deleteSubCategory,

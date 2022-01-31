@@ -23,6 +23,9 @@ const articleSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+    picture: {
+      type: String,
+    },
     body: {
       type: String,
       required: [true, 'Body must be provided'],
@@ -36,6 +39,10 @@ const articleSchema = new mongoose.Schema(
     tags: [{ type: ObjectId, ref: 'Tag' }],
     comments: [commentSchema],
     likes: [],
+    numberOfLikes: {
+      type: Number,
+      default: 0,
+    },
     unlikes: [],
     user: {
       type: ObjectId,
