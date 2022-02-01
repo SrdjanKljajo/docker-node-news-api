@@ -37,7 +37,7 @@ const getUser = async (req, res) => {
 
 // @desc      Get single user
 // @route     GET /api/v1/user/:slug/picture
-// @access    Private (only admin and current user)
+// @access    Private
 const getUserPicture = async (req, res) => {
   const slug = req.params.slug
   const user = await User.findOne({ slug })
@@ -49,7 +49,7 @@ const getUserPicture = async (req, res) => {
 
 // @desc      Create user
 // @route     POST /api/v1/user
-// @access    Private (only admin and moderator role)
+// @access    Private
 const createUser = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body
   const image = req.file
@@ -156,6 +156,7 @@ const updateUser = async (req, res) => {
 
 // @desc      Get articles by user
 // @route     GET /api/v1/user/:slug/articles
+// @access    Private
 const getArticlesByUser = async (req, res) => {
   const slug = req.params.slug
   const user = await User.findOne({ slug }).populate('articles', [
@@ -176,6 +177,7 @@ const getArticlesByUser = async (req, res) => {
 
 // @desc      Delete user and user products
 // @route     DELETE /api/v1/user/:slug
+// @access    Private
 const deleteUser = async (req, res) => {
   const slug = req.params.slug
   const articlePublisher = await User.findOne({ slug })
@@ -193,6 +195,7 @@ const deleteUser = async (req, res) => {
 
 // @desc      Delete all users
 // @route     DELETE /api/v1/user
+// @access    Private
 const deleteAllUsers = async (req, res) => {
   await User.deleteMany({})
   await Article.deleteMany({})

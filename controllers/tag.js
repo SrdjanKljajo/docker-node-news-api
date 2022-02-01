@@ -4,6 +4,7 @@ const CustomError = require('../errors')
 
 // @desc      Get Tags
 // @route     GET /api/v1/tag
+// access     Private (only admin role)
 const getAllTags = async (req, res) => {
   const tags = await Tag.find().populate('articles')
   res.status(StatusCodes.OK).json({
@@ -13,8 +14,24 @@ const getAllTags = async (req, res) => {
   })
 }
 
+// @desc      Get single sub category
+// @route     GET /api/v1/tag/:slug
+// access     Private (only admin role)
+const getSingleTag = async (req, res) => {
+  const slug = req.params.slug
+  const tag = await Tag.findOne({ slug })
+  if (!tag) {
+    throw new CustomError.NotFoundError(`Tag ${slug} not found`)
+  }
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    tag,
+  })
+}
+
 // @desc      Post tag
 // @route     POST /api/v1/tag
+// access     Private (only admin role)
 const createTag = async (req, res) => {
   const tag = await Tag.create({ ...req.body })
   res.status(StatusCodes.CREATED).json({
@@ -25,6 +42,7 @@ const createTag = async (req, res) => {
 
 // @desc      Post tag
 // @route     PUT /api/v1/tag/:slug
+// access     Private (only admin role)
 const updateTag = async (req, res) => {
   const tag = await Tag.findOneAndUpdate({ slug: req.params.slug }, req.body, {
     new: true,
@@ -41,6 +59,7 @@ const updateTag = async (req, res) => {
 
 // @desc      Get articles by tag
 // @route     GET /api/v1/tag/:slug/articles
+// access     Public
 const getArticlesByTag = async (req, res) => {
   const slug = req.params.slug
   const tag = await Tag.findOne({ slug }).populate('articles', [
@@ -61,6 +80,7 @@ const getArticlesByTag = async (req, res) => {
 
 // @desc      Post tag
 // @route     DELETE /api/v1/tag/:slug
+// access     Private (only admin role)
 const deleteTag = async (req, res) => {
   const tagSlug = req.params.slug
   const tag = await Tag.findOneAndDelete({
@@ -74,6 +94,7 @@ const deleteTag = async (req, res) => {
 
 // @desc      Delete all tags
 // @route     DELETE /api/v1/tag
+// access     Private (only admin role)
 const deleteAllTags = async (req, res) => {
   await Tag.deleteMany({})
   res.status(StatusCodes.NO_CONTENT).send()
@@ -82,6 +103,7 @@ const deleteAllTags = async (req, res) => {
 module.exports = {
   getAllTags,
   getArticlesByTag,
+  getSingleTag,
   createTag,
   updateTag,
   deleteTag,

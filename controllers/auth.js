@@ -49,7 +49,7 @@ const register = async (req, res) => {
 
 // @desc    Register a new user with account activation
 // @route   POST /api/v1/auth/account-activation
-// @access  Private
+// @access  Public
 const accountActivation = async (req, res) => {
   const { token } = req.body
 
@@ -158,7 +158,7 @@ const forgotPassword = async (req, res) => {
 
 // @desc    Reset password
 // @route   PUT /api/v1/auth/reset-password
-// @access  Private
+// @access  Public
 const resetPassword = async (req, res) => {
   let { resetPasswordToken, newPassword, confirmPassword } = req.body
 
@@ -249,6 +249,9 @@ const googleLogin = async (req, res) => {
     })
 }
 
+// @desc    Loging out
+// @route   POST /api/v1/auth/logout
+// @access  Private
 const logout = async (req, res) => {
   res.cookie('token', 'logout', {
     httpOnly: true,

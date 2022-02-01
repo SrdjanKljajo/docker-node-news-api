@@ -20,7 +20,7 @@ router
   .route('/')
   .get(
     //authenticateUser,
-    //authorizePermissions('admin', 'moderator'),
+    //authorizePermissions('admin'),
     getAllSubCategories
   )
   .post(authenticateUser, authorizePermissions('admin'), createSubCategory)
@@ -31,16 +31,8 @@ router
   )
 router
   .route('/:slug')
-  .get(
-    authenticateUser,
-    authorizePermissions('admin', 'moderator'),
-    getSingleSubCategory
-  )
-  .put(
-    authenticateUser,
-    authorizePermissions('admin', 'moderator'),
-    updateSubCategory
-  )
+  .get(authenticateUser, authorizePermissions('admin'), getSingleSubCategory)
+  .put(authenticateUser, authorizePermissions('admin'), updateSubCategory)
   .delete(authenticateUser, authorizePermissions('admin'), deleteSubCategory)
 router.route('/:slug/articles').get(getArticlesBySubCategory)
 

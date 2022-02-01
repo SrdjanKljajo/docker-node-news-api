@@ -10,7 +10,6 @@ services:
     NODE_ENV: development
   env_file:
    - ./config/.env
-  restart: always
   volumes:
    - ./:/app
    - /app/node_modules

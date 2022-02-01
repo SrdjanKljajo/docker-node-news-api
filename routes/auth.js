@@ -11,10 +11,12 @@ const {
   forgotPassword,
 } = require('../controllers/auth')
 
+const { authenticateUser } = require('../middlewares/auth')
+
 router.post('/register', register)
 router.post('/account-activation', accountActivation)
 router.post('/login', login)
-router.get('/logout', logout)
+router.get('/logout', authenticateUser, logout)
 
 // google login
 router.post('/google-login', googleLogin)

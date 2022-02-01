@@ -5,6 +5,7 @@ const CustomError = require('../errors')
 
 // @desc      Get sub categories
 // @route     GET /api/v1/sub-category
+// access     Private (only admin role)
 const getAllSubCategories = async (req, res) => {
   const subCategories = await SubCategory.find().populate('articles')
   res.status(StatusCodes.OK).json({
@@ -16,6 +17,7 @@ const getAllSubCategories = async (req, res) => {
 
 // @desc      Get single sub category
 // @route     GET /api/v1/sub-category/:slug
+// access     Private (only admin role)
 const getSingleSubCategory = async (req, res) => {
   const slug = req.params.slug
   const subCategory = await SubCategory.findOne({ slug })
@@ -30,6 +32,7 @@ const getSingleSubCategory = async (req, res) => {
 
 // @desc      Post sub category
 // @route     POST /api/v1/sub-category
+// access     Private (only admin role)
 const createSubCategory = async (req, res) => {
   const subCategory = await SubCategory.create({ ...req.body })
   const category = await Category.findByIdAndUpdate(
@@ -50,6 +53,7 @@ const createSubCategory = async (req, res) => {
 
 // @desc      Post category
 // @route     PUT /api/v1/sub-category/:slug
+// access     Private (only admin role)
 const updateSubCategory = async (req, res) => {
   const subCategory = await SubCategory.findOneAndUpdate(
     { slug: req.params.slug },
@@ -70,6 +74,7 @@ const updateSubCategory = async (req, res) => {
 
 // @desc      Get articles by subCategory
 // @route     GET /api/v1/subCategory/:slug/articles
+// access     Public
 const getArticlesBySubCategory = async (req, res) => {
   const slug = req.params.slug
   const subCategory = await SubCategory.findOne({ slug }).populate('articles', [
@@ -90,6 +95,7 @@ const getArticlesBySubCategory = async (req, res) => {
 
 // @desc      Post category
 // @route     DELETE /api/v1/sub-category/:slug
+// access     Private (only admin role)
 const deleteSubCategory = async (req, res) => {
   const slug = req.params.slug
   const subCategory = await SubCategory.findOneAndDelete({
@@ -103,6 +109,7 @@ const deleteSubCategory = async (req, res) => {
 
 // @desc      Delete all categories
 // @route     DELETE /api/v1/sub-category
+// access     Private (only admin role)
 const deleteAllSubCategories = async (req, res) => {
   await Category.deleteMany({})
   res.status(StatusCodes.NO_CONTENT).send()

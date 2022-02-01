@@ -14,6 +14,7 @@ const { uploadFile } = require('../s3')
 
 // @desc      Get articles
 // @route     GET /api/v1/article
+// @access    Public
 const getAllArticles = async (req, res) => {
   const articles = await Article.find().sort('-createdAt')
   res.status(StatusCodes.OK).json({ articles, count: articles.length })
@@ -21,6 +22,7 @@ const getAllArticles = async (req, res) => {
 
 // @desc      Get articles
 // @route     GET /api/v1/article/top
+// @access    Public
 const getTopArticles = async (req, res) => {
   const articles = await Article.find({}).sort({ numberOfLikes: -1 }).limit(5)
   res.status(StatusCodes.OK).json({ articles })
@@ -28,6 +30,7 @@ const getTopArticles = async (req, res) => {
 
 // @desc      Get single article
 // @route     GET /api/v1/article/:slug
+// @access    Public
 const getArticle = async (req, res) => {
   const slug = req.params.slug
   const article = await Article.findOne({ slug })
@@ -42,6 +45,7 @@ const getArticle = async (req, res) => {
 
 // @desc      Create article
 // @route     POST /api/v1/article
+// @access    Private
 const createArticle = async (req, res) => {
   const { title, body, category, subCategory, tags, user } = req.body
   const artCategory = await Category.findById(category)
@@ -74,6 +78,7 @@ const createArticle = async (req, res) => {
     tags,
     user,
   })
+
   await User.findByIdAndUpdate(
     user,
     {
@@ -81,6 +86,7 @@ const createArticle = async (req, res) => {
     },
     { new: true, runValidators: true }
   )
+
   await Category.findByIdAndUpdate(
     category,
     {
@@ -125,8 +131,9 @@ const createArticle = async (req, res) => {
   })
 }
 
-// @desc    List related articles
-// @route   GET /api/v1/article/:slug/related
+// @desc      List related articles
+// @route     GET /api/v1/article/:slug/related
+// @access    Public
 const listRelated = async (req, res) => {
   const slug = req.params.slug
   const article = await Article.findOne({ slug })
@@ -136,7 +143,7 @@ const listRelated = async (req, res) => {
   }
 
   const related = await Article.find({
-    // Related articles without found article
+    // Related articles by category without found article
     _id: { $ne: article._id },
     category: article.category,
     //subCategory: article.subCategory,
@@ -145,8 +152,9 @@ const listRelated = async (req, res) => {
   res.json(related)
 }
 
-// @desc    Create new comment
-// @route   POST /api/v1/article/:slug/comments
+// @desc      Create new comment
+// @route     POST /api/v1/article/:slug/comments
+// @access    Public
 const createArticleComment = async (req, res) => {
   const slug = req.params.slug
   const { name, comment } = req.body
@@ -165,8 +173,9 @@ const createArticleComment = async (req, res) => {
     userComment,
   })
 }
-// @desc    Create new comment
-// @route   PATCH /api/v1/article/:slug/like
+// @desc      Like article
+// @route     PATCH /api/v1/article/:slug/like
+// @access    Public
 const likeArticle = async (req, res) => {
   const slug = req.params.slug
   const clientIp = requestIp.getClientIp(req)
@@ -206,7 +215,7 @@ const likeArticle = async (req, res) => {
   })
 }
 
-// @desc      Create new comment
+// @desc      Unlike article
 // @route     PATCH /api/v1/article/:slug/unlike
 // @access    Public
 const unlikeArticle = async (req, res) => {
@@ -261,22 +270,22 @@ const updateArticle = async (req, res) => {
     throw new CustomError.NotFoundError(`Category not found`)
   }
 
-  // Remove article category
+  // Remove article from category
   await Category.findByIdAndUpdate(
     article.category,
     {
       $pull: { articles: article._id },
     },
-    { new: true, runValidators: true }
+    { new: true }
   )
 
-  // Remove article sub category
+  // Remove article from sub category
   await SubCategory.findByIdAndUpdate(
     article.subCategory,
     {
       $pull: { articles: article._id },
     },
-    { new: true, runValidators: true }
+    { new: true }
   )
 
   // Remove article from article tags
@@ -286,7 +295,7 @@ const updateArticle = async (req, res) => {
       {
         $pull: { articles: article._id },
       },
-      { new: true, runValidators: true }
+      { new: true }
     )
   })
 
@@ -299,13 +308,10 @@ const updateArticle = async (req, res) => {
       subCategory,
       tags,
     },
-    {
-      new: true,
-      runValidators: true,
-    }
+    { new: true, runValidators: true }
   )
 
-  // Add article category
+  // Add article to category
   await Category.findByIdAndUpdate(
     category,
     {
@@ -314,7 +320,7 @@ const updateArticle = async (req, res) => {
     { new: true, runValidators: true }
   )
 
-  // Add article sub category
+  // Add article to sub category
   await SubCategory.findByIdAndUpdate(
     subCategory,
     {
@@ -336,7 +342,7 @@ const updateArticle = async (req, res) => {
 
   res.status(StatusCodes.OK).json({
     status: 'success',
-    msg: `Article is updated`,
+    msg: `Article is successfully updated`,
     article,
   })
 }
@@ -373,19 +379,23 @@ const updateArticleImage = async (req, res) => {
 
 // @desc      Delete article
 // @route     DELETE /api/v1/article/:slug
+// @access    Private
 const deleteArticle = async (req, res) => {
   const slug = req.params.slug
   const article = await Article.findOne({ slug })
   if (!article) {
     throw new CustomError.NotFoundError(`Article ${slug} not found`)
   }
+
   checkPermissions(req.user, article.user._id)
+
   await Article.findOneAndDelete({ slug })
   res.status(StatusCodes.NO_CONTENT).send()
 }
 
 // @desc      Delete all articles
 // @route     DELETE /api/v1/article
+// @access    Private (only admin role)
 const deleteAllArticles = async (req, res) => {
   await Article.deleteMany({})
   res.status(StatusCodes.NO_CONTENT).send()

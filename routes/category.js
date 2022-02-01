@@ -21,23 +21,15 @@ router
   .route('/')
   .get(
     //authenticateUser,
-    //authorizePermissions('admin', 'moderator'),
+    //authorizePermissions('admin'),
     getAllCategories
   )
   .post(authenticateUser, authorizePermissions('admin'), createCategory)
   .delete(authenticateUser, authorizePermissions('admin'), deleteAllCategories)
 router
   .route('/:slug')
-  .get(
-    authenticateUser,
-    authorizePermissions('admin', 'moderator'),
-    getSingleCategory
-  )
-  .put(
-    authenticateUser,
-    authorizePermissions('admin', 'moderator'),
-    updateCategory
-  )
+  .get(authenticateUser, authorizePermissions('admin'), getSingleCategory)
+  .put(authenticateUser, authorizePermissions('admin'), updateCategory)
   .delete(authenticateUser, authorizePermissions('admin'), deleteCategory)
 router.route('/:slug/articles').get(getArticlesByCategory)
 router.route('/:slug/sub-categories').get(getSubCategoriesByCategory)

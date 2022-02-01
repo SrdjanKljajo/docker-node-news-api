@@ -42,8 +42,10 @@ router
   .delete(authenticateUser, deleteUser)
   .patch(authenticateUser, authorizePermissions('admin'), updateUserRole)
 
-router.route('/:slug/picture').get(getUserPicture)
-router.route('/:slug/picture').patch(uploadImg, updateUserImage)
+router
+  .route('/:slug/picture')
+  .get(getUserPicture)
+  .patch(uploadImg, updateUserImage)
 router.route('/:slug/articles').get(getArticlesByUser)
 
 module.exports = router

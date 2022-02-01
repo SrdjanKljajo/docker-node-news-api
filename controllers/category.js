@@ -4,7 +4,7 @@ const CustomError = require('../errors')
 
 // @desc      Get categories
 // @route     GET /api/v1/category
-// @access    Private
+// access     Private (only admin role)
 const getAllCategories = async (req, res) => {
   const categories = await Category.find()
     .populate('articles')
@@ -18,6 +18,7 @@ const getAllCategories = async (req, res) => {
 
 // @desc      Get single category
 // @route     GET /api/v1/category/:slug
+// access     Private (only admin role)
 const getSingleCategory = async (req, res) => {
   const slug = req.params.slug
   const category = await Category.findOne({ slug })
@@ -32,6 +33,7 @@ const getSingleCategory = async (req, res) => {
 
 // @desc      Get sub categories by category
 // @route     GET /api/v1/category/:slug/sub-categories
+// access     Public
 const getSubCategoriesByCategory = async (req, res) => {
   const slug = req.params.slug
   const category = await Category.findOne({ slug }).populate('subCategories', [
@@ -50,6 +52,7 @@ const getSubCategoriesByCategory = async (req, res) => {
 
 // @desc      Get articles by category
 // @route     GET /api/v1/category/:slug/articles
+// access     Public
 const getArticlesByCategory = async (req, res) => {
   const slug = req.params.slug
   const category = await Category.findOne({ slug }).populate('articles', [
@@ -70,6 +73,7 @@ const getArticlesByCategory = async (req, res) => {
 
 // @desc      Post category
 // @route     POST /api/v1/category
+// access     Private (only admin role)
 const createCategory = async (req, res) => {
   const category = await Category.create({ ...req.body })
   res.status(StatusCodes.CREATED).json({
@@ -78,8 +82,9 @@ const createCategory = async (req, res) => {
   })
 }
 
-// @desc      Post category
+// @desc      Update category
 // @route     PUT /api/v1/category/:slug
+// access     Private (only admin role)
 const updateCategory = async (req, res) => {
   const slug = req.params.slug
   const category = await Category.findOneAndUpdate({ slug }, req.body, {
@@ -97,6 +102,7 @@ const updateCategory = async (req, res) => {
 
 // @desc      Post category
 // @route     DELETE /api/v1/category/:slug
+// access     Private (only admin role)
 const deleteCategory = async (req, res) => {
   const categorySlug = req.params.slug
   const category = await Category.findOneAndDelete({
@@ -110,6 +116,7 @@ const deleteCategory = async (req, res) => {
 
 // @desc      Delete all categories
 // @route     DELETE /api/v1/category
+// access     Private (only admin role)
 const deleteAllCategories = async (req, res) => {
   await Category.deleteMany({})
   res.status(StatusCodes.NO_CONTENT).send()

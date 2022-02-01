@@ -8,6 +8,7 @@ const {
   deleteTag,
   deleteAllTags,
   getArticlesByTag,
+  getSingleTag,
 } = require('../controllers/tag')
 
 const {
@@ -18,14 +19,15 @@ const {
 router
   .route('/')
   .get(
-    //authenticateUser, authorizePermissions('admin', 'moderator'),
+    //authenticateUser, authorizePermissions('admin'),
     getAllTags
   )
   .post(authenticateUser, authorizePermissions('admin'), createTag)
   .delete(authenticateUser, authorizePermissions('admin'), deleteAllTags)
 router
   .route('/:slug')
-  .put(authenticateUser, authorizePermissions('admin', 'moderator'), updateTag)
+  .get(getSingleTag)
+  .put(authenticateUser, authorizePermissions('admin'), updateTag)
   .delete(authenticateUser, authorizePermissions('admin'), deleteTag)
 router.route('/:slug/articles').get(getArticlesByTag)
 
